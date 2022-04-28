@@ -8,24 +8,23 @@ from matplotlib import style
 from spotipy import util
 from spotipy.oauth2 import SpotifyClientCredentials 
 import json
+from env_info import *
 
 #Set up Connection 
-client_id = '720ccd49410842c7bddb89cbfc7686a4'
-client_secret = '35f10e9a0b204412843f84bb84b3a959'
-redirect_uri= 'http://localhost:3000/main' # front end
-
+client_id = CLIENT_ID
+client_secret = CLIENT_SECRET
+redirect_uri= REDIRECT_URL # front end
+scope = SCOPE
 
 session = {}
 
 app = Flask(__name__)
-app.secret_key = 'SECRET'
+app.secret_key = SECRET_KEY
 
 @app.route('/authenticate/<username>', methods=["GET", "POST"])
 def authenticate_app(username):
-    scope = 'user-library-read playlist-modify-public playlist-read-private'
     #redirect_uri='uri'
-    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, 
-    client_secret=client_secret)#Create manager for ease
+    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)#Create manager for ease
     session['sp'] = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     session['token'] = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
     if session['token']:
