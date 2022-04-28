@@ -1,3 +1,5 @@
 .venv
 .cache-sadieiq694
 env_info.py
+.DS_Store
+flask-backend/__pycache__/

@@ -41,9 +41,12 @@ export default class Main extends Component {
         this.onValMinMaxChange = this.onValMinMaxChange.bind(this)
         this.onTempMinMaxChange = this.onTempMinMaxChange.bind(this)
         this.filterTracks = this.filterTracks.bind(this)
+        this.createPlaylist = this.createPlaylist.bind(this)
+        this.onChangePlaylistName = this.onChangePlaylistName.bind(this)
         this.state = {
             username: this.props.username,
             token:'',
+            playlist_name:'',
             playlists: [],
             selected_playlist:{},
             tracks: [],
@@ -129,89 +132,70 @@ export default class Main extends Component {
     }
 
     onDanceMinMaxChange(e) {
-        console.log(e)
-        //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({dancemin: min})
         this.setState({dancemax: max})
-        console.log(this.state.dancemin)
     }
 
     onEnergyMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({energymin: min})
         this.setState({energymax: max})
-        console.log(this.state.energymin)
     }
 
     onModeMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         this.setState({modemin: e.min})
         this.setState({modemax: e.max})
-        console.log(this.state.modemin)
     }
 
     onSpeechMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({speechmin: min})
         this.setState({speechmax: max})
-        console.log(this.state.speechmin)
     }
 
     onAcoustMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({acoustmin: min})
         this.setState({acoustmax: max})
-        console.log(this.state.acoustmin)
     }
 
     onInstMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({instmin: min})
         this.setState({instmax: max})
-        console.log(this.state.instmin)
     }
 
     onLiveMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({livemin: min})
         this.setState({livemax: max})
-        console.log(this.state.livemin)
     }
 
     onValMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         var min = e.min/100
         var max = e.max/100
         this.setState({valmin: min})
         this.setState({valmax: max})
-        console.log(this.state.valmin)
     }
 
     onTempMinMaxChange(e){
-        console.log(e)
         //console.log(`min = ${min}, max = ${max}`)
         this.setState({tempmin: e.min})
         this.setState({tempmax: e.max})
-        console.log(this.state.valmin)
     }
 
     filterTracks(e) {
@@ -248,6 +232,28 @@ export default class Main extends Component {
         });
     }
 
+    onChangePlaylistName(e) {
+        this.setState({ playlist_name: e.target.value })
+    }
+
+    createPlaylist(e) {
+        var track_ids = this.state.filtered_tracks.map((data)  => {
+            return (data.id)})
+        console.log(track_ids)
+
+        var creation_obj = {
+            "playlist_name": this.state.playlist_name,
+            "track_ids": track_ids
+        }
+        axios.post('/create_playlist/' + this.state.username, creation_obj)
+        .then((res) => {
+            console.log(res.data)
+            //this.setState({ filtered_tracks: res.data})
+        }).catch((error) => {
+            console.log(error)
+        });   
+    }
+
     render() {
         return (
             <div className="wrapper">
@@ -265,54 +271,63 @@ export default class Main extends Component {
                     </select>
                     <button onClick={this.loadSongs}>Confirm Playlist</button>
                     <button onClick={this.getAudioFeatures}>Get Features</button>
+                    <p>Danceability Range</p>
                     <MultiRangeSlider
                         id="slider1"
                         min={0}
                         max={100}
                         onChange={this.onDanceMinMaxChange}
                     />
+                    <p>Energy Range</p>
                     <MultiRangeSlider
                         id="slider2"
                         min={0}
                         max={100}
                         onChange={this.onEnergyMinMaxChange}
                     />
+                    <p>Mode Selection</p>
                     <MultiRangeSlider
                         id="slider3"
                         min={0}
                         max={1}
                         onChange={this.onModeMinMaxChange}
                     />
+                    <p>Speechiness Range</p>
                     <MultiRangeSlider
                         id="slider4"
                         min={0}
                         max={100}
                         onChange={this.onSpeechMinMaxChange}
                     />
+                    <p>Acoustic Range</p>
                     <MultiRangeSlider
                         id="slider5"
                         min={0}
                         max={100}
                         onChange={this.onAcoustMinMaxChange}
                     />
+                    <p>Instrumentalness Range</p>
                     <MultiRangeSlider
                         id="slider6"
                         min={0}
                         max={100}
                         onChange={this.onInstMinMaxChange}
                     />
+                    <p>Liveness Range</p>
                     <MultiRangeSlider
                         id="slider7"
                         min={0}
                         max={100}
                         onChange={this.onLiveMinMaxChange}
                     />
+                    <p>Valence Range</p>
                     <MultiRangeSlider
                         id="slider8"
                         min={0}
                         max={100}
                         onChange={this.onValMinMaxChange}
                     />
+                    <p>Tempo Range</p>
                     <MultiRangeSlider
                         id="slider9"
                         min={0}
@@ -331,6 +346,11 @@ export default class Main extends Component {
                     ))
                     )}
                 </div>
+                    <div>
+                        <input type="text" value={this.state.playlist_name} onChange={this.onChangePlaylistName}  />
+                        <br></br>
+                        <button onClick={this.createPlaylist}>Create your playlist!</button>
+                    </div>
             </div>
         )
     }
