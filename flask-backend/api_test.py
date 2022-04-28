@@ -8,8 +8,9 @@ headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 res1 = get('http://127.0.0.1:5000/authenticate/sadieiq694')
 print(res1, res1.content.decode())
 
+'''
 res2 = get('http://127.0.0.1:5000/user_playlists')
-print(res2, res2.content.decode())
+print(res2, res2.content.decode())'''
 
 res3 = get('http://127.0.0.1:5000/playlist_tracks/sadieiq694/2I0tFWHjXJg81fLYTg3KWX')
 #print(res3, res3.content.decode())
@@ -29,10 +30,10 @@ tracklistfeat = json.loads(tracklistfeat)
 print("FIRST TRACK", tracklistfeat[0])
 
 trackfilters = {
-    "dancemin": 0,
-    "dancemax": 0.5,
+    "dancemin": 0.8,
+    "dancemax": 1,
     "energymin": 0,
-    "energymax": 0.5,
+    "energymax": 1,
     "modemin": 0,
     "modemax": 1,
     "speechmin": 0,
@@ -62,7 +63,7 @@ filtered_tracks = json.loads(filtered_tracks)
 
 create_data = {
     "track_ids": filtered_tracks,
-    "playlist_name": "My new playlist!"
+    "playlist_name": "My dance playlist!"
 }
 
 res4 = put('http://127.0.0.1:5000/create_playlist/sadieiq694', data=json.dumps(create_data), headers=headers)

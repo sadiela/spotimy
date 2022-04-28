@@ -1,8 +1,8 @@
 #Import Library
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify # , session
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
+#import seaborn as sns
 import spotipy
 from matplotlib import style
 from spotipy import util
@@ -12,23 +12,10 @@ import json
 #Set up Connection 
 client_id = '720ccd49410842c7bddb89cbfc7686a4'
 client_secret = '35f10e9a0b204412843f84bb84b3a959'
-redirect_uri= 'http://localhost:8888/callback' # front end
+redirect_uri= 'http://localhost:3000/main' # front end
 
-username = 'sadieiq694' #Store username
-scope = 'user-library-read playlist-modify-public playlist-read-private'
-#redirect_uri='uri'
-client_credentials_manager = SpotifyClientCredentials(client_id=client_id, 
-client_secret=client_secret)#Create manager for ease
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-token = util.prompt_for_user_token(username, scope, client_id, 
-client_secret, redirect_uri)
+
 session = {}
-
-if token:
- sp = spotipy.Spotify(auth=token)
- print("GOT TOKEN!")
-else:
- print("Can't get token for", username)
 
 app = Flask(__name__)
 app.secret_key = 'SECRET'
@@ -41,13 +28,21 @@ def authenticate_app(username):
     client_secret=client_secret)#Create manager for ease
     session['sp'] = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     session['token'] = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
-    if token:
+    if session['token']:
         session['sp'] = spotipy.Spotify(auth=session['token'])
         print("GOT TOKEN!")
-        return "DONE"
+        print(session['token'])
+        return session['token']
     else:
         print("Can't get token for", username)
         return 400
+
+@app.route('/get_token', methods=["GET"])
+def get_token():
+    if "token" in session.keys():
+        return session["token"]
+    else:
+        return ""
 
 @app.route('/user_playlists', methods=["GET"])
 def get_playlist_ids():
@@ -74,7 +69,7 @@ def get_playlist_ids():
 def user_playlist_tracks_full(user, playlistid):
     #fields="items(track(name,id))"
     # first run through also retrieves total no of songs in library
-    response = session['sp'].user_playlist_tracks(user, playlistid, fields="items.track(name,id)", limit=100)
+    response = session['sp'].user_playlist_tracks(user, playlistid, fields="items.track(name,id,artists(name))", limit=100)
     total_songs = session['sp'].user_playlist_tracks(user, playlistid, fields="total", limit=100)
     print("TOTAL SONGS:", total_songs)
     total = total_songs['total']
@@ -85,33 +80,43 @@ def user_playlist_tracks_full(user, playlistid):
     while len(results) < total:
         print(len(results))
         response = session['sp'].user_playlist_tracks(
-            user, playlistid, fields="items.track(name,id)", limit=100, offset=len(results))
+            user, playlistid, fields="items.track(name,id,artists(name))", limit=100, offset=len(results))
         results.extend(response["items"])
     print(len(results))
     print(results[0])
     return jsonify(results)
 
-@app.route('/audio_features', methods=["GET"])
+@app.route('/audio_features', methods=["GET", "POST"])
 def get_audio_features_full():
     if request.is_json: # check data is in correct format
+        print("JSON REQUEST")
         track_list = request.get_json() 
-    print(track_list)
-    res = []
-    while len(res) < len(track_list):
+        print(track_list)
+        res = []
+        while len(res) < len(track_list):
+            print(len(res))
+            id_str = ""
+            for i in range(len(res), len(res)+100):
+                if i > len(track_list)-1:
+                    break
+                id_str += track_list[i]["track"]["id"] + ','
+            id_str = id_str[:-1]
+            response = session['sp'].audio_features(id_str)
+            res.extend(response)
+
+        full_res = []
+        for (s, r) in zip(track_list, res):
+            r["artist"] =  s["track"]["artists"][0]["name"]
+            r["name"] =  s["track"]["name"]
+            full_res.append(r)
         print(len(res))
-        id_str = ""
-        for i in range(len(res), len(res)+100):
-            if i > len(track_list)-1:
-                break
-            id_str += track_list[i]["track"]["id"] + ','
-        id_str = id_str[:-1]
-        response = session['sp'].audio_features(id_str)
-        res.extend(response)
-    print(len(res))
-    return jsonify(res)
+        return jsonify(full_res)
+    else: 
+        print("NO JSON DATA PASSED")
+        return 500
 
     
-@app.route('/filter_tracks', methods=["GET"])
+@app.route('/filter_tracks', methods=["GET", "POST"])
 def filter_tracks():
     if request.is_json: # check data is in correct format
         data = request.get_json() 
@@ -121,7 +126,7 @@ def filter_tracks():
     print("TRACKLIST1", tracklist)
     print(track_filters)
 
-    filtered_tracks = [t['id'] for t in tracklist 
+    filtered_tracks = [{"id":t['id'], "name":t['name'], "artist":t['artist']} for t in tracklist 
                                 if t['danceability']>= track_filters["dancemin"] and t['danceability'] <=track_filters["dancemax"] \
                                 and  t['energy']>= track_filters["energymin"] and t['energy'] <=track_filters["energymax"]  \
                                 and  t['mode']>= track_filters["modemin"] and t['mode'] <= track_filters["modemax"] \
@@ -131,7 +136,7 @@ def filter_tracks():
                                 and  t['liveness']>= track_filters["livemin"] and t['liveness'] <= track_filters["livemax"] \
                                 and  t['valence']>= track_filters["valmin"] and t['valence'] <= track_filters["valmax"] \
                                 and  t['tempo']>= track_filters["tempmin"] and t['tempo'] <= track_filters["tempmax"] ]
-    
+    print(filtered_tracks[0])
     return jsonify(filtered_tracks)
 
 @app.route('/create_playlist/<user>', methods=["POST", "PUT", "GET"])
