@@ -30,7 +30,7 @@ export default class Main extends Component {
         super(props)
         this.onSelect = this.onSelect.bind(this);
         this.loadSongs = this.loadSongs.bind(this);
-        this.getAudioFeatures = this.getAudioFeatures.bind(this)
+        //this.getAudioFeatures = this.getAudioFeatures.bind(this)
         this.onDanceMinMaxChange = this.onDanceMinMaxChange.bind(this)
         this.onEnergyMinMaxChange = this.onEnergyMinMaxChange.bind(this)
         this.onModeMinMaxChange = this.onModeMinMaxChange.bind(this)
@@ -49,7 +49,7 @@ export default class Main extends Component {
             playlist_name:'',
             playlists: [],
             selected_playlist:{},
-            tracks: [],
+            //tracks: [],
             tracksWithFeatures:[],
             filtered_tracks:[],
             minValue: 0,
@@ -109,9 +109,9 @@ export default class Main extends Component {
 
     loadSongs(e) {
         console.log("LOADING SONGS!")
-        axios.get('/playlist_tracks/' + this.state.username + '/' + this.state.selected_playlist)
+        axios.get('/playlist_tracks_features/' + this.state.username + '/' + this.state.selected_playlist)
             .then(res => {
-                this.setState({tracks: res.data });
+                this.setState({tracksWithFeatures: res.data });
                 console.log(res.data)
                 console.log("TOTAL TRACKS:" + res.data.length)
             })
@@ -121,7 +121,7 @@ export default class Main extends Component {
 
     }
 
-    getAudioFeatures(e) {
+    /*getAudioFeatures(e) {
         console.log(this.state.tracks)
         axios.post('/audio_features', this.state.tracks)
             .then(res => {
@@ -129,7 +129,7 @@ export default class Main extends Component {
                 this.setState({tracksWithFeatures: res.data})
                 console.log("GOT FEATURE DATA")
         })
-    }
+    }*/
 
     onDanceMinMaxChange(e) {
         var min = e.min/100
@@ -270,7 +270,6 @@ export default class Main extends Component {
                             })}
                     </select>
                     <button onClick={this.loadSongs}>Confirm Playlist</button>
-                    <button onClick={this.getAudioFeatures}>Get Features</button>
                     <p>Danceability Range</p>
                     <MultiRangeSlider
                         id="slider1"
@@ -357,3 +356,4 @@ export default class Main extends Component {
 }
 
 //({ min, max }) => console.log(`min = ${min}, max = ${max}`)
+// <button onClick={this.getAudioFeatures}>Get Features</button>

@@ -1,10 +1,6 @@
 #Import Library
 from flask import Flask, request, jsonify # , session
-import matplotlib.pyplot as plt
-import pandas as pd
-#import seaborn as sns
 import spotipy
-from matplotlib import style
 from spotipy import util
 from spotipy.oauth2 import SpotifyClientCredentials 
 import json
@@ -64,16 +60,12 @@ def get_playlist_ids():
         playlists.append(cur_obj)
     return jsonify(playlists)
 
-@app.route('/playlist_tracks/<user>/<playlistid>', methods=["GET"])
-def user_playlist_tracks_full(user, playlistid):
-    #fields="items(track(name,id))"
-    # first run through also retrieves total no of songs in library
-    response = session['sp'].user_playlist_tracks(user, playlistid, fields="items.track(name,id,artists(name))", limit=100)
-    total_songs = session['sp'].user_playlist_tracks(user, playlistid, fields="total", limit=100)
-    print("TOTAL SONGS:", total_songs)
+
+def playlist_track_info_no_features(user, playlistid, fields, limit):
+    response = session['sp'].user_playlist_tracks(user, playlistid, fields=fields, limit=limit)
+    total_songs = session['sp'].user_playlist_tracks(user, playlistid, fields="total", limit=limit)
     total = total_songs['total']
     results = response['items']
-    print(results)
 
     # subsequently runs until it hits the user-defined limit or has read all songs in the library
     while len(results) < total:
@@ -82,37 +74,54 @@ def user_playlist_tracks_full(user, playlistid):
             user, playlistid, fields="items.track(name,id,artists(name))", limit=100, offset=len(results))
         results.extend(response["items"])
     print(len(results))
-    print(results[0])
+    return results
+
+def tracklist_audio_features(track_list):
+    res = []
+    while len(res) < len(track_list):
+        print(len(res))
+        id_str = ""
+        for i in range(len(res), len(res)+100):
+            if i > len(track_list)-1:
+                break
+            id_str += track_list[i]["track"]["id"] + ','
+        id_str = id_str[:-1]
+        response = session['sp'].audio_features(id_str)
+        res.extend(response)
+
+    full_res = []
+    for (s, r) in zip(track_list, res):
+        r["artist"] =  s["track"]["artists"][0]["name"]
+        r["name"] =  s["track"]["name"]
+        full_res.append(r)
+    print(len(full_res))
+    return full_res
+
+# get list of tracks for a playlist
+@app.route('/playlist_tracks/<user>/<playlistid>', methods=["GET"])
+def user_playlist_tracks_full(user, playlistid):
+    results = playlist_track_info_no_features(user, playlistid, "items.track(name,id,artists(name))", 100)
     return jsonify(results)
 
+# get audio features for a list of tracks
 @app.route('/audio_features', methods=["GET", "POST"])
 def get_audio_features_full():
     if request.is_json: # check data is in correct format
         print("JSON REQUEST")
         track_list = request.get_json() 
         print(track_list)
-        res = []
-        while len(res) < len(track_list):
-            print(len(res))
-            id_str = ""
-            for i in range(len(res), len(res)+100):
-                if i > len(track_list)-1:
-                    break
-                id_str += track_list[i]["track"]["id"] + ','
-            id_str = id_str[:-1]
-            response = session['sp'].audio_features(id_str)
-            res.extend(response)
-
-        full_res = []
-        for (s, r) in zip(track_list, res):
-            r["artist"] =  s["track"]["artists"][0]["name"]
-            r["name"] =  s["track"]["name"]
-            full_res.append(r)
-        print(len(res))
+        full_res = tracklist_audio_features(track_list)
         return jsonify(full_res)
     else: 
         print("NO JSON DATA PASSED")
         return 500
+
+# get list of tracks WITH audio features for a playlist
+@app.route('/playlist_tracks_features/<user>/<playlistid>', methods=["GET", "POST"])
+def user_playlist_tracks_with_features(user, playlistid):
+    track_list = playlist_track_info_no_features(user, playlistid, "items.track(name,id,artists(name))", 100)
+    full_res = tracklist_audio_features(track_list)
+    return jsonify(full_res)
 
     
 @app.route('/filter_tracks', methods=["GET", "POST"])
