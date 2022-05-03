@@ -14,8 +14,12 @@ scope = SCOPE
 
 session = {}
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../spotify-playlist-frontend/build', static_url_path='/')
 app.secret_key = SECRET_KEY
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 
 @app.route('/authenticate/<username>', methods=["GET", "POST"])
 def authenticate_app(username):
@@ -144,7 +148,8 @@ def filter_tracks():
                                 and  t['liveness']>= track_filters["livemin"] and t['liveness'] <= track_filters["livemax"] \
                                 and  t['valence']>= track_filters["valmin"] and t['valence'] <= track_filters["valmax"] \
                                 and  t['tempo']>= track_filters["tempmin"] and t['tempo'] <= track_filters["tempmax"] ]
-    print(filtered_tracks[0])
+    if len(filtered_tracks) !=0:
+        print(filtered_tracks[0])
     return jsonify(filtered_tracks)
 
 @app.route('/create_playlist/<user>', methods=["POST", "PUT", "GET"])

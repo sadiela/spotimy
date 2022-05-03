@@ -1,29 +1,50 @@
 import React, { Component } from 'react';
 import MultiRangeSlider from "./multiRangeSlider";
 import axios from 'axios'
+import styled from "styled-components";
+import "./main.component.css";
+
 //import { useNavigate } from "react-router-dom";
 
+const Button = styled.button`
+    background-color: #4196F7;
+    color: white;
+    font-size: 15px;
+    padding: 5px 20px;
+    border-radius: 20px;
+    margin: 10px 10px;
+    cursor: pointer;
+`;
 
-/*const cookies = new Cookies();
+const Title = styled.h1`
+    font-weight: bold; 
+    font-family: Tahoma;
+    text-align: center;
+    font-size: 30px;
+    background-color: white`;
 
-var scope = 'user-read-private user-read-email';
+const ParBold = styled.p`
+    font-weight: bold; 
+    font-family: Tahoma;
+    text-align: center;
+    font-size: 20px;
+    background-color: white`;
 
-const authinfo = {
-    client_id : '720ccd49410842c7bddb89cbfc7686a4', // Your client id
-    client_secret : '35f10e9a0b204412843f84bb84b3a959', // Your secret
-    redirect_uri :'http://localhost:3000/' // Your redirect uri
-}
+const Par = styled.p`
+    font-family: Tahoma;
+    text-align: center;
+    font-size: 15px;
+    background-color: white`;
 
-var generateRandomString = function(length) {
-    var text = '';
-    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  
-    for (var i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-};*/
-
+const Input = styled.input`
+    background-color: white;
+    color: black;
+    font-size: 15px;
+    padding: 5px 10px;
+    border-radius: 0px;
+    margin: 10px 10px;
+    cursor: pointer;`
+    ;
   
 export default class Main extends Component {
     constructor(props) {
@@ -34,6 +55,8 @@ export default class Main extends Component {
         this.onDanceMinMaxChange = this.onDanceMinMaxChange.bind(this)
         this.onEnergyMinMaxChange = this.onEnergyMinMaxChange.bind(this)
         this.onModeMinMaxChange = this.onModeMinMaxChange.bind(this)
+        this.onMajChange = this.onMajChange.bind(this)
+        this.onMinChange = this.onMinChange.bind(this)
         this.onSpeechMinMaxChange = this.onSpeechMinMaxChange.bind(this)
         this.onAcoustMinMaxChange = this.onAcoustMinMaxChange.bind(this)
         this.onInstMinMaxChange = this.onInstMinMaxChange.bind(this)
@@ -58,8 +81,8 @@ export default class Main extends Component {
             dancemax: 1,
             energymin: 0,
             energymax: 1,
-            modemin: 0,
-            modemax: 1,
+            majorchecked: true,
+            minorchecked: true, // default both major and minor keys allowed
             speechmin: 0,
             speechmax: 1,
             acoustmin: 0,
@@ -146,11 +169,25 @@ export default class Main extends Component {
         this.setState({energymax: max})
     }
 
+
     onModeMinMaxChange(e){
         //console.log(`min = ${min}, max = ${max}`)
-        this.setState({modemin: e.min})
+        this.setState({maj: e.min})
         this.setState({modemax: e.max})
     }
+
+    onMajChange(e) {
+        console.log("Major", this.state.majorchecked, "Minor:", this.state.minorchecked)
+        this.setState({majorchecked: e.target.checked})
+        console.log("EVENT", e.target.checked)
+        console.log("Major", this.state.majorchecked, "Minor:", this.state.minorchecked)
+    }
+
+    onMinChange(e) {
+        this.setState({minorchecked: e.target.checked})
+        console.log(this.state.majorchecked, this.state.minorchecked)
+    }
+
 
     onSpeechMinMaxChange(e){
         //console.log(`min = ${min}, max = ${max}`)
@@ -199,7 +236,20 @@ export default class Main extends Component {
     }
 
     filterTracks(e) {
+        console.log("Major", this.state.majorchecked, "Minor:", this.state.minorchecked)
         console.log("FILTERING TRACKS!")
+        var modemin, modemax; 
+        if (this.state.minorchecked === true) {
+            modemin = 0; 
+        } else {
+            modemin=1;
+        }
+        if (this.state.majorchecked === true) {
+            modemax = 1; 
+        } else {
+            modemax = 0;
+        }
+
         var filtering_args = {
                 "tracklist":this.state.tracksWithFeatures,
                 "filters": {
@@ -207,8 +257,8 @@ export default class Main extends Component {
                     "dancemax": this.state.dancemax,
                     "energymin": this.state.energymin,
                     "energymax": this.state.energymax,
-                    "modemin": this.state.modemin,
-                    "modemax": this.state.modemax,
+                    "modemin": modemin,
+                    "modemax": modemax,
                     "speechmin": this.state.speechmin,
                     "speechmax": this.state.speechmax,
                     "acoustmin": this.state.acoustmin,
@@ -257,19 +307,21 @@ export default class Main extends Component {
     render() {
         return (
             <div className="wrapper">
-                <h1>Welcome to the Spotify Playlist Maker!</h1>
-                <p>Choose your base playlist: </p>
+                <Title>Welcome to the Spotify Playlist Maker!</Title>
+                <ParBold>Choose your base playlist: </ParBold>
                 <div>
-                    <select
-                        value={this.state.selected_playlist}
-                        onChange={this.onSelect}>
-                        {this.state.playlists.map((data,i)  => {
-                            return (
-                                <option key={i} value={data.id}> {data.name} </option>
-                            )
-                            })}
-                    </select>
-                    <button onClick={this.loadSongs}>Confirm Playlist</button>
+                    <div className="custom-select">
+                        <select
+                            value={this.state.selected_playlist}
+                            onChange={this.onSelect}>
+                            {this.state.playlists.map((data,i)  => {
+                                return (
+                                    <option key={i} value={data.id}> {data.name} </option>
+                                )
+                                })}
+                        </select>
+                    </div>
+                    <Button onClick={this.loadSongs}>Confirm Playlist</Button>
                     <p>Danceability Range</p>
                     <MultiRangeSlider
                         id="slider1"
@@ -285,12 +337,8 @@ export default class Main extends Component {
                         onChange={this.onEnergyMinMaxChange}
                     />
                     <p>Mode Selection</p>
-                    <MultiRangeSlider
-                        id="slider3"
-                        min={0}
-                        max={1}
-                        onChange={this.onModeMinMaxChange}
-                    />
+                    <input type="checkbox" id="majorcheck" name="major" value="maj" checked={this.state.majorchecked} onChange={this.onMajChange} />Major key
+                    <input type="checkbox" id="minorcheck" name="minor" value="min" checked={this.state.minorchecked} onChange={this.onMinChange} />Minor key
                     <p>Speechiness Range</p>
                     <MultiRangeSlider
                         id="slider4"
@@ -334,21 +382,22 @@ export default class Main extends Component {
                         onChange={this.onTempMinMaxChange}
                     />
                     <br></br>
-                    <button onClick={this.filterTracks}>Filter Playlist Tracks</button>
+                    <Button onClick={this.filterTracks}>Filter Playlist Tracks</Button>
                     <br></br>
-                    <p>Track List:</p>
+                    <ParBold>Track List:</ParBold>
                     {(this.state.filtered_tracks.length === 0) ? (
-                    <p>NO TRACKS</p>
+                    <Par>No tracks fit the filter criteria!</Par>
                     ) : (
                     this.state.filtered_tracks.map((data,i) => (
-                        <p key={i}>{data.name} {data.artist}</p>
+                        <Par key={i}>{data.name} {data.artist}</Par>
                     ))
                     )}
                 </div>
+                    <p>Happy? Enter your playlist name:</p>
                     <div>
-                        <input type="text" value={this.state.playlist_name} onChange={this.onChangePlaylistName}  />
+                        <Input type="text" value={this.state.playlist_name} onChange={this.onChangePlaylistName}  />
                         <br></br>
-                        <button onClick={this.createPlaylist}>Create your playlist!</button>
+                        <Button onClick={this.createPlaylist}>Create your playlist!</Button>
                     </div>
             </div>
         )

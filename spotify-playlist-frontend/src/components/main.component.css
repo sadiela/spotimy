@@ -1,0 +1,73 @@
+input[type=checkbox] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* create custom checkbox appearance */
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    /* background-color only for content */
+    background-clip: content-box;
+    border: 1px solid #000000;
+    border-radius: 6px;
+    background-color: #e7e6e7;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+input[type=checkbox]:checked {
+    background-color: #4196F7;
+}
+
+/* The container must be positioned relative: */
+.custom-select {
+    position: relative;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  
+  .select-selected {
+    background-color: Black;
+  }
+  
+  /* Style the arrow inside the select element: */
+  .select-selected:after {
+    position: absolute;
+    content: "";
+    top: 14px;
+    right: 10px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: #fff transparent transparent transparent;
+  }
+  
+  /* Point the arrow upwards when the select box is open (active): */
+  .select-selected.select-arrow-active:after {
+    border-color: transparent transparent #fff transparent;
+    top: 7px;
+  }
+  
+  /* style the items (options), including the selected item: */
+  .select-items div,.select-selected {
+    font-family: 'Times New Roman', Times, serif;
+    color: #ffffff;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+    cursor: pointer;
+  }
+  
+  /* Style items (options): */
+  .select-items {
+    position: absolute;
+    background-color: DodgerBlue;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+  }
+  
+  .select-items div:hover, .same-as-selected {
+    background-color: rgba(0, 0, 0, 0.1);
+  }

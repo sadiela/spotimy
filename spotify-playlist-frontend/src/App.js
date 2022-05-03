@@ -4,9 +4,30 @@ import Main from './components/main.component.js';
 //import Cookies from 'universal-cookie';
 //import { useNavigate } from "react-router-dom";
 import axios from 'axios'
+import styled from "styled-components";
 
 
-  
+const Button = styled.button`
+  background-color: #4196F7;
+  color: white;
+  font-size: 15px;
+  padding: 10px 30px;
+  border-radius: 20px;
+  margin: 10px 10px;
+  cursor: pointer;
+`;
+
+const Input = styled.input`
+  background-color: white;
+  color: black;
+  font-size: 15px;
+  padding: 5px 10px;
+  border-radius: 0px;
+  margin: 10px 10px;
+  cursor: pointer;`
+  ;
+
+
 export default class App extends Component  {
 
   constructor(props) {
@@ -41,9 +62,9 @@ export default class App extends Component  {
   return (
     <div className="App">
     {this.state.token ? <Main  username={this.state.username}/> : <div>
-            <input type="text" value={this.state.username} onChange={this.onChangeUserName}  />
+            <Input type="text" value={this.state.username} onChange={this.onChangeUserName}  />
             <br></br>
-            <button onClick={this.authorize}>Login to Spotify</button>
+            <Button onClick={this.authorize}>Login to Spotify</Button>
           </div>}
     </div>
   );
