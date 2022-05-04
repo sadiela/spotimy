@@ -10,7 +10,7 @@ import os
 #Set up Connection 
 CLIENT_ID = '720ccd49410842c7bddb89cbfc7686a4'
 CLIENT_SECRET = '35f10e9a0b204412843f84bb84b3a959'
-REDIRECT_URL = 'http://localhost:3000/main' # front end
+REDIRECT_URL = 'https://spotipy-appsadie694.herokuapp.com/main' #'http://localhost:3000/main' # front end
 SECRET_KEY = "appSeCrEtkeYY"
 SCOPE = 'user-library-read playlist-modify-public playlist-read-private'
 
