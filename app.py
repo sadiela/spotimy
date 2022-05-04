@@ -14,11 +14,12 @@ scope = SCOPE
 
 session = {}
 
-app = Flask(__name__, static_folder='../spotify-playlist-frontend/build', static_url_path='/')
+app = Flask(__name__, static_folder='./spotify-playlist-frontend/build', static_url_path='/')
 app.secret_key = SECRET_KEY
 
-@app.route('/')
+@app.route('/', methods=["GET"])
 def index():
+    print("Hello")
     return app.send_static_file('index.html')
 
 @app.route('/authenticate/<username>', methods=["GET", "POST"])
