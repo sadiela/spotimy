@@ -21,7 +21,7 @@ app.secret_key = SECRET_KEY
 @app.route('/', methods=["GET"])
 def index():
     print("Hello")
-    return app.send_static_file('index.html')
+    return "HELLO WORLD!" #app.send_static_file('index.html')
 
 @app.route('/authenticate/<username>', methods=["GET", "POST"])
 def authenticate_app(username):
