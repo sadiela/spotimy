@@ -12,6 +12,7 @@ client_secret = CLIENT_SECRET
 redirect_uri= REDIRECT_URL # front end
 scope = SCOPE
 
+
 session = {}
 
 app = Flask(__name__, static_folder='./spotify-playlist-frontend/build', static_url_path='/')
