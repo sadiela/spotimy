@@ -5,6 +5,7 @@ from spotipy import util
 from spotipy.oauth2 import SpotifyClientCredentials 
 import json
 from env_info import *
+import os
 
 #Set up Connection 
 client_id = CLIENT_ID
@@ -178,4 +179,6 @@ def create_playlist(user):
     return playlist_create['id']
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    port = int(os.environ.get("PORT", 5000))     
+    app.run(host='0.0.0.0', port=port, debug=True)
+    #app.run()
