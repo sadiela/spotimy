@@ -1,6 +1,6 @@
 # Custom Playlist Maker
 
-This application allows Spotify users to create filtered playlists based on their previous saved/followed playlists. It is hosted at [spotimy.net](spotimy.net).
+This application allows Spotify users to create filtered playlists based on their previous saved/followed playlists. It is hosted at [spotimy.net](http://spotimy.net/).
 
 ## Requirements
 * Python 3.9
