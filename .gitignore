@@ -3,3 +3,5 @@
 env_info.py
 .DS_Store
 flask-backend/__pycache__/
+
+spotify-playlist-frontend/src/Secrets.js
