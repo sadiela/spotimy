@@ -9,7 +9,6 @@ import os
 
 app = Flask(__name__, static_folder='./spotify-playlist-frontend/build', static_url_path='/')
 
-
 @app.route('/', methods=["GET"])
 def index():
     print("Hello")
