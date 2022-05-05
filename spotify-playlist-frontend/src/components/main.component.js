@@ -4,6 +4,11 @@ import axios from 'axios'
 import styled from "styled-components";
 import "./main.component.css";
 
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+//import ListSubheader from '@mui/material/ListSubheader';
+
 //import { useNavigate } from "react-router-dom";
 
 const Button = styled.button`
@@ -21,23 +26,23 @@ const Title = styled.h1`
     font-family: Tahoma;
     text-align: center;
     font-size: 30px;
-    background-color: white`;
+    background-color: e7e6e7`;
 
 const ParBold = styled.p`
     font-weight: bold; 
     font-family: Tahoma;
     text-align: center;
     font-size: 20px;
-    background-color: white`;
+    background-color: e7e6e7`;
 
 const Par = styled.p`
     font-family: Tahoma;
     text-align: center;
     font-size: 15px;
-    background-color: white`;
+    background-color: e7e6e7`;
 
 const Input = styled.input`
-    background-color: white;
+    background-color: e7e6e7;
     color: black;
     font-size: 15px;
     padding: 5px 10px;
@@ -64,14 +69,18 @@ export default class Main extends Component {
         this.onValMinMaxChange = this.onValMinMaxChange.bind(this)
         this.onTempMinMaxChange = this.onTempMinMaxChange.bind(this)
         this.filterTracks = this.filterTracks.bind(this)
+        this.onUsernameChange = this.onUsernameChange.bind(this)
         this.createPlaylist = this.createPlaylist.bind(this)
         this.onChangePlaylistName = this.onChangePlaylistName.bind(this)
         this.state = {
-            username: this.props.username,
-            token:'',
+            username: '',
+            token:this.props.token,
             playlist_name:'',
             playlists: [],
             selected_playlist:{},
+            loaded:'',
+            playlistCreated: '',
+            playlistLink:'',
             //tracks: [],
             tracksWithFeatures:[],
             filtered_tracks:[],
@@ -99,18 +108,11 @@ export default class Main extends Component {
     }
 
    componentDidMount() {
-        console.log(this.state.username)
-        axios.get('/get_token')
-        .then((res) => {
-            console.log(res.data)
-            this.setState({token: res.data})
-        }).catch((error) => {
-            console.log(error)
-        });
-        //cookies.set(stateKey, state, { path: '/' });
-        //console.log(cookies.get(stateKey)); 
-
-        axios.get('/user_playlists')
+        console.log("PROPS:", this.props)
+        console.log("USERNAME:", this.state.username)
+        console.log("TOKEN:", this.state.token)
+  
+        axios.get('/user_playlists/' + this.state.token)
             .then(res => {
                 this.setState({ playlists: res.data });
                 console.log("PLAYLISTS")
@@ -132,11 +134,14 @@ export default class Main extends Component {
 
     loadSongs(e) {
         console.log("LOADING SONGS!")
-        axios.get('/playlist_tracks_features/' + this.state.username + '/' + this.state.selected_playlist)
+        this.setState({loaded: "Loading tracks, please wait..."})
+        axios.get('/playlist_tracks_features/' + this.state.selected_playlist + '/' + this.state.token)
             .then(res => {
                 this.setState({tracksWithFeatures: res.data });
                 console.log(res.data)
                 console.log("TOTAL TRACKS:" + res.data.length)
+                console.log(this.state.loadingTracks)
+                this.setState({loaded: "Tracks loaded! Please choose filtering options."})
             })
             .catch(function (error) {
                 console.log(error);
@@ -282,6 +287,10 @@ export default class Main extends Component {
         });
     }
 
+    onUsernameChange(e) {
+        this.setState({ username: e.target.value })
+    }
+
     onChangePlaylistName(e) {
         this.setState({ playlist_name: e.target.value })
     }
@@ -295,12 +304,16 @@ export default class Main extends Component {
             "playlist_name": this.state.playlist_name,
             "track_ids": track_ids
         }
-        axios.post('/create_playlist/' + this.state.username, creation_obj)
+
+        this.setState({ playlistCreated: "Creating your playlist..."})
+        axios.post('/create_playlist/' + this.state.username + '/' + this.state.token, creation_obj)
         .then((res) => {
             console.log(res.data)
-            //this.setState({ filtered_tracks: res.data})
+            this.setState({ playlistLink: res.data.link})
+            this.setState({ playlistCreated: "Playlist created! Check it out on Spotify :)"})
         }).catch((error) => {
             console.log(error)
+            this.setState({ playlistCreated: "Playlist creation failed...check that your username is correct!"})
         });   
     }
 
@@ -322,59 +335,60 @@ export default class Main extends Component {
                         </select>
                     </div>
                     <Button onClick={this.loadSongs}>Confirm Playlist</Button>
-                    <p>Danceability Range</p>
+                    <Par>{this.state.loaded}</Par>
+                    <Par>Danceability Range</Par>
                     <MultiRangeSlider
                         id="slider1"
                         min={0}
                         max={100}
                         onChange={this.onDanceMinMaxChange}
                     />
-                    <p>Energy Range</p>
+                    <Par>Energy Range</Par>
                     <MultiRangeSlider
                         id="slider2"
                         min={0}
                         max={100}
                         onChange={this.onEnergyMinMaxChange}
                     />
-                    <p>Mode Selection</p>
+                    <Par>Mode Selection</Par>
                     <input type="checkbox" id="majorcheck" name="major" value="maj" checked={this.state.majorchecked} onChange={this.onMajChange} />Major key
                     <input type="checkbox" id="minorcheck" name="minor" value="min" checked={this.state.minorchecked} onChange={this.onMinChange} />Minor key
-                    <p>Speechiness Range</p>
+                    <Par>Speechiness Range</Par>
                     <MultiRangeSlider
                         id="slider4"
                         min={0}
                         max={100}
                         onChange={this.onSpeechMinMaxChange}
                     />
-                    <p>Acoustic Range</p>
+                    <Par>Acoustic Range</Par>
                     <MultiRangeSlider
                         id="slider5"
                         min={0}
                         max={100}
                         onChange={this.onAcoustMinMaxChange}
                     />
-                    <p>Instrumentalness Range</p>
+                    <Par>Instrumentalness Range</Par>
                     <MultiRangeSlider
                         id="slider6"
                         min={0}
                         max={100}
                         onChange={this.onInstMinMaxChange}
                     />
-                    <p>Liveness Range</p>
+                    <Par>Liveness Range</Par>
                     <MultiRangeSlider
                         id="slider7"
                         min={0}
                         max={100}
                         onChange={this.onLiveMinMaxChange}
                     />
-                    <p>Valence Range</p>
+                    <Par>Valence Range</Par>
                     <MultiRangeSlider
                         id="slider8"
                         min={0}
                         max={100}
                         onChange={this.onValMinMaxChange}
                     />
-                    <p>Tempo Range</p>
+                    <Par>Tempo Range</Par>
                     <MultiRangeSlider
                         id="slider9"
                         min={0}
@@ -388,16 +402,42 @@ export default class Main extends Component {
                     {(this.state.filtered_tracks.length === 0) ? (
                     <Par>No tracks fit the filter criteria!</Par>
                     ) : (
-                    this.state.filtered_tracks.map((data,i) => (
-                        <Par key={i}>{data.name} {data.artist}</Par>
-                    ))
-                    )}
+                        <div style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+                            <List
+                                sx={{
+                                    width: '100%',
+                                    maxWidth: 360,
+                                    bgcolor: '#ffffff',
+                                    alignItems: "center",
+                                    overflow: 'auto',
+                                    maxHeight: 300,
+                                    '& ul': { padding: 0 },
+                                }}
+                                >
+                                {this.state.filtered_tracks.map((data,i) => (
+                                        <ListItem key={`item-${i}`} sx={{alignItems:"center"}}>
+                                            <ListItemText primary={`${data.name} - ${data.artist}`}/>
+                                        </ListItem>
+                                ))}
+                            </List>    
+                        </div>
+                    )}     
+                    
                 </div>
-                    <p>Happy? Enter your playlist name:</p>
+                    <Par>Happy? Enter your Spotify username and desired playlist name:</Par>
                     <div>
+                        <Par>Username:</Par>
+                        <Input type="text" value={this.state.username} onChange={this.onUsernameChange}/>
+                        <Par>Playlist Name:</Par>
                         <Input type="text" value={this.state.playlist_name} onChange={this.onChangePlaylistName}  />
                         <br></br>
                         <Button onClick={this.createPlaylist}>Create your playlist!</Button>
+                        <Par>{this.state.playlistCreated}</Par>
+                        {(this.state.playlistLink) ? (
+                           <a href={this.state.playlistLink}>Your new playlist</a>
+                        ):(
+                          <p></p>
+                        )}
                     </div>
             </div>
         )

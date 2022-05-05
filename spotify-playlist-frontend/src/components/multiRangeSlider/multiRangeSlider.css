@@ -1,8 +1,8 @@
 .container {
   height: 4vh;
   display: flex;
-  align-items: left;
-  justify-content: left;
+  align-items: center;
+  justify-content: center;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-right: 25px;
