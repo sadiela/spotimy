@@ -38,7 +38,7 @@ Spotimy lets you filter your tracks according to 9 audio features reported by Sp
 * **Valence**: A measure of the musical positiveness conveyed by a track.
 
 ## Architecture
-This application has a Flask backend and a React frontend. It is hosted on Heroku. Documentation for the backend API can be found in this repository's [wiki](https://github.com/sadiela/spotimy/wiki). 
+This application has a [Flask backend](https://flask.palletsprojects.com/en/2.1.x/) and a [React](https://reactjs.org/) frontend. It is hosted on [Heroku](https://www.heroku.com/). Documentation for the backend API can be found in this repository's [wiki](https://github.com/sadiela/spotimy/wiki). 
 
 ## Future Features
 
