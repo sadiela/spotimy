@@ -50,7 +50,7 @@ In the future, the following filtering options will be added to the application:
 * **Duration**: Duration of track.
 * **Genre**: The genre associated with the track's artist. 
 
-#### Audio features data analysis display
+### Audio features data analysis display
 Eventually I would like to display histograms showing the distributions of the different audio features. This data is potentially interesting to users in its own right, but it will also give users a better idea of how many of their songs they will be filtering out for different audio feature ranges. See the [wiki](https://github.com/sadiela/spotimy/wiki) for examples of the distribution graphs for one of my [personal playlists](https://open.spotify.com/playlist/2I0tFWHjXJg81fLYTg3KWX?si=4cabc61dbb2c48e2).
 
 ### Information page
